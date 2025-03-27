@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Charts for {{ player_id }}</title>
+    {% load static %}
+</head>
+<body>
+    <div style="display: flex; align-items: center;">
+        <div style="width: 50%">
+            <canvas id="statChart"></canvas>
+        </div>
+        <div style="margin-left: 20px;">
+            
+            <label for="statSelect">Select Stat:</label>
+            <select id="statSelect">
+                {% for param_id, param_name in allowed_params.items %}>
+                    <option value="{{ param_id }}" {% if param_id == chosen_param %} selected {% endif %}>{{ param_name }}</option>
+                {% endfor %}
+            </select>
+
+            <button id="addFieldButton" style="margin-top: 10px;">+ New Account</button>
+            
+            <div id="inputContainer" style="margin-top: 10px; display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: center">
+                    <p style="margin-right: 10px">Main:</p>
+                    <input value="{{ player_id }}" disabled>
+                </div>
+
+            </div>
+
+            <!-- Add the Rebuild Chart button -->
+            <button id="rebuildChartButton" style="margin-top: 10px;">Rebuild Chart</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        const matchesCompare = {% if matchesCompare is not None %}{{ matchesCompare }}{% else %}null{% endif %};
+        const chartValue = "{{ chartValue }}";
+        const stats = JSON.parse('{{ stats|safe|escapejs }}');
+        const playerId = "{{ player_id }}";
+    </script>
+    <script src="{% static 'js/charts.js' %}"></script>
+</body>
+</html>
