@@ -19,14 +19,20 @@
                 {% endfor %}
             </select>
 
-            <button id="addFieldButton" style="margin-top: 10px;">+ New Account</button>
-            
-            <div id="inputContainer" style="margin-top: 10px; display: flex; flex-direction: column;">
-                <div style="display: flex; align-items: center">
+            <br>
+            <label for="takeInput">Number of Matches:</label>
+            <input type="text" placeholder="10" id="takeInput">
+
+
+
+            <div style="display: flex; align-items: center">
                     <p style="margin-right: 10px">Main:</p>
                     <input value="{{ player_id }}" disabled>
                 </div>
 
+            <button id="addFieldButton" style="margin-top: 5px;">+ New Account</button>
+
+            <div id="inputContainer" style="margin-top: 5px; display: flex; flex-direction: column;">
             </div>
 
             <!-- Add the Rebuild Chart button -->

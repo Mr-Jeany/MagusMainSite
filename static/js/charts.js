@@ -106,6 +106,13 @@ rebuildChartButton.addEventListener('click', () => {
     // Get selected stat
     const selectedStat = document.getElementById('statSelect').value;
 
+    // Get number of mataches (take)
+    let takeMatches = document.getElementById("takeInput").value;
+    console.log(takeMatches);
+    if (takeMatches === "") {
+        takeMatches = "10";
+    }
+
     // Get all input fields
     const inputFields = document.querySelectorAll('#inputContainer input');
     const others = Array.from(inputFields).map(input => input.value).filter(value => value); // Get non-empty values
@@ -134,6 +141,7 @@ rebuildChartButton.addEventListener('click', () => {
     }
 
     params.set('value', chartValue);
+    params.set('take', takeMatches);
 
     // Construct the new URL with updated parameters
     const newUrl = `${baseUrl}?${params.toString()}`;
@@ -182,6 +190,10 @@ function populateInputFields() {
             inputContainer.appendChild(fieldContainer);
         });
     }
+
+    const takeMatches = currentUrl.searchParams.get("take");
+    const takeInput = document.getElementById("takeInput");
+    takeInput.value = takeMatches;
 }
 
 // Call the function to populate input fields on page load
