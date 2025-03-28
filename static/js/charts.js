@@ -46,7 +46,7 @@ const chartConfig = {
             },
             title: {
                 display: true,
-                text: "Player Stats",
+                text: "Statistics for " + valueName,
             }
         },
         scales: {

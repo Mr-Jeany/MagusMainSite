@@ -4,7 +4,7 @@ from django.http import HttpResponseNotFound, HttpResponseNotAllowed, HttpRespon
 from django.shortcuts import render, redirect
 
 from magus_utilities.processing_data import LineChart
-from magus_utilities.requesters import StratzRequester
+from magus_utilities.requesters import StratzRequester, OpenDota
 from magus_utilities import config
 
 
@@ -32,9 +32,11 @@ def charts_page(request, player_id):
 
     context = {
         "player_id": player_id,
+        "player_name": OpenDota.get_player_name(player_id),
         "stats": json.dumps(stats),
         "allowed_params": config.ALLOWED_PARAMETRS,
         "chosen_param": query_values["value"],
+        "chosen_param_name": config.ALLOWED_PARAMETRS[query_values["value"]],
         "already_exists": others
     }
     return render(request, "player/charts.html", context=context)

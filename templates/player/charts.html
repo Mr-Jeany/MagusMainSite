@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Charts for {{ player_id }}</title>
+    <title>Charts for {{ player_name }}</title>
     {% load static %}
 </head>
 <body>
@@ -39,13 +39,14 @@
             <button id="rebuildChartButton" style="margin-top: 10px;">Rebuild Chart</button>
         </div>
     </div>
-
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
     <script>
         const matchesCompare = {% if matchesCompare is not None %}{{ matchesCompare }}{% else %}null{% endif %};
         const chartValue = "{{ chartValue }}";
         const stats = JSON.parse('{{ stats|safe|escapejs }}');
         const playerId = "{{ player_id }}";
+        const valueName = "{{ chosen_param_name }}";
     </script>
     <script src="{% static 'js/charts.js' %}"></script>
 </body>
