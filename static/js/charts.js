@@ -62,42 +62,155 @@ new Chart(
     chartConfig
 )
 
+function buildOptionsFromDict(d) {
+    if (!d || typeof d !== 'object') {
+        console.warn('Invalid dictionary provided to buildOptionsFromDict');
+        return '<option value="">No options available</option>';
+    }
 
+    return Object.entries(d)
+        .map(([key, value]) => `<option value="${key}">${value}</option>`)
+        .join('');
+}
 
-// Add event listener for the button to create a text field
+// Helper functions for creating UI elements
+function createLabel(text, width = '100px') {
+    const label = document.createElement('label');
+    label.textContent = text;
+    label.style.width = width;
+    return label;
+}
+
+function createFlexContainer(direction = 'column', gap = '10px') {
+    const container = document.createElement('div');
+    container.style.display = 'flex';
+    container.style.flexDirection = direction;
+    container.style.gap = gap;
+    return container;
+}
+
+function createInputWithLabel(labelText, inputType = 'text', placeholder = '') {
+    const container = createFlexContainer('row', '10px');
+    container.style.alignItems = 'center';
+    
+    const label = createLabel(labelText);
+    const input = document.createElement(inputType === 'text' ? 'input' : 'select');
+    
+    if (inputType === 'text') {
+        input.type = 'text';
+        input.placeholder = placeholder;
+    } else if (inputType === 'select') {
+        input.innerHTML = placeholder;
+    }
+    
+    input.className = 'form-control';
+    input.style.flex = '1';
+    
+    container.appendChild(label);
+    container.appendChild(input);
+    return container;
+}
+
+function createButton(text, className, onClick) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.className = className;
+    if (onClick) button.addEventListener('click', onClick);
+    return button;
+}
+
+function createCardContainer() {
+    const cardContainer = document.createElement('div');
+    cardContainer.className = 'card';
+    cardContainer.style.marginBottom = '10px';
+    cardContainer.style.padding = '15px';
+    cardContainer.style.border = '1px solid #ddd';
+    cardContainer.style.borderRadius = '5px';
+    cardContainer.style.backgroundColor = '#f9f9f9';
+    cardContainer.style.width = '300px';
+    return cardContainer;
+}
+
+function createCard(accountValue = '') {
+    const cardContainer = createCardContainer();
+    const inputsContainer = createFlexContainer('column', '10px');
+
+    // Create input fields
+    const accountContainer = createInputWithLabel('Account ID:', 'text', 'Enter account name');
+    if (accountValue) accountContainer.querySelector('input').value = accountValue;
+
+    const statContainer = createInputWithLabel('Stat:', 'select', buildOptionsFromDict(valueOptions));
+
+    const matchResultContainer = createInputWithLabel('Match result:', 'select', `
+        <option value="">Select match result</option>
+        <option value="optionA">Option A</option>
+        <option value="optionB">Option B</option>
+        <option value="optionC">Option C</option>
+    `);
+
+    // Create buttons container
+    const buttonsContainer = createFlexContainer('row', '10px');
+    buttonsContainer.style.justifyContent = 'space-between';
+    buttonsContainer.style.alignItems = 'center';
+
+    const copyButton = createButton('Copy Info', 'btn btn-secondary', () => {
+        navigator.clipboard.writeText('foo bar').then(() => {
+            const originalText = copyButton.textContent;
+            copyButton.textContent = 'Copied!';
+            setTimeout(() => {
+                copyButton.textContent = originalText;
+            }, 1000);
+        });
+    });
+    copyButton.style.padding = '2px 8px';
+    copyButton.style.fontSize = '12px';
+
+    const removeButton = createButton('Remove', 'btn btn-danger', () => {
+        inputContainer.removeChild(cardContainer);
+    });
+
+    // Assemble the card
+    buttonsContainer.appendChild(copyButton);
+    buttonsContainer.appendChild(removeButton);
+
+    inputsContainer.appendChild(accountContainer);
+    inputsContainer.appendChild(statContainer);
+    inputsContainer.appendChild(matchResultContainer);
+    inputsContainer.appendChild(buttonsContainer);
+
+    cardContainer.appendChild(inputsContainer);
+    return cardContainer;
+}
+
+// Add event listener for the button to create a card
 const addFieldButton = document.getElementById('addFieldButton');
 const inputContainer = document.getElementById('inputContainer');
 
 addFieldButton.addEventListener('click', () => {
-    // Create a new container for the input field and the remove button
-    const fieldContainer = document.createElement('div');
-    fieldContainer.style.display = 'flex';
-    fieldContainer.style.alignItems = 'center'; // Align items in the center
-
-    // Create a new text field
-    const newInput = document.createElement('input');
-    newInput.type = 'text';
-    newInput.placeholder = 'Enter account name'; // Placeholder text
-    newInput.style.marginRight = '5px'; // Add some spacing
-    newInput.style.marginTop = '5px'
-
-    // Create a remove button
-    const removeButton = document.createElement('button');
-    removeButton.textContent = '[-]'; // Button text
-    removeButton.style.marginLeft = '5px'; // Add some spacing
-
-    // Add event listener to the remove button
-    removeButton.addEventListener('click', () => {
-        inputContainer.removeChild(fieldContainer); // Remove the field container
-    });
-
-    // Append the input field and remove button to the field container
-    fieldContainer.appendChild(newInput);
-    fieldContainer.appendChild(removeButton);
-
-    // Append the field container to the input container
-    inputContainer.appendChild(fieldContainer);
+    const cardContainer = createCard();
+    inputContainer.appendChild(cardContainer);
 });
+
+// Modify the populateInputFields function to use the new createCard function
+function populateInputFields() {
+    const currentUrl = new URL(window.location.href);
+    const others = currentUrl.searchParams.get('others');
+
+    if (others) {
+        const accountNames = others.split(',');
+        accountNames.forEach(name => {
+            const cardContainer = createCard(name);
+            inputContainer.appendChild(cardContainer);
+        });
+    }
+
+    const takeMatches = currentUrl.searchParams.get("take");
+    const takeInput = document.getElementById("takeInput");
+    takeInput.value = takeMatches;
+}
+
+// Call the function to populate input fields on page load
+populateInputFields();
 
 // Add event listener for the Rebuild Chart button
 const rebuildChartButton = document.getElementById('rebuildChartButton');
@@ -151,50 +264,3 @@ rebuildChartButton.addEventListener('click', () => {
     // Redirect to the new URL
     window.location.href = newUrl; // This will navigate to the constructed URL
 });
-
-// Add this function to populate input fields from query parameters
-function populateInputFields() {
-    const currentUrl = new URL(window.location.href);
-    const others = currentUrl.searchParams.get('others');
-
-    if (others) {
-        const accountNames = others.split(','); // Split the string into an array
-        accountNames.forEach(name => {
-            // Create a new container for the input field and the remove button
-            const fieldContainer = document.createElement('div');
-            fieldContainer.style.display = 'flex';
-            fieldContainer.style.alignItems = 'center'; // Align items in the center
-
-            // Create a new text field
-            const newInput = document.createElement('input');
-            newInput.type = 'text';
-            newInput.placeholder = 'Enter account name'; // Placeholder text
-            newInput.value = name; // Set the value to the account name
-            newInput.style.marginRight = '5px'; // Add some spacing
-
-            // Create a remove button
-            const removeButton = document.createElement('button');
-            removeButton.textContent = '[-]'; // Button text
-            removeButton.style.marginLeft = '5px'; // Add some spacing
-
-            // Add event listener to the remove button
-            removeButton.addEventListener('click', () => {
-                inputContainer.removeChild(fieldContainer); // Remove the field container
-            });
-
-            // Append the input field and remove button to the field container
-            fieldContainer.appendChild(newInput);
-            fieldContainer.appendChild(removeButton);
-
-            // Append the field container to the input container
-            inputContainer.appendChild(fieldContainer);
-        });
-    }
-
-    const takeMatches = currentUrl.searchParams.get("take");
-    const takeInput = document.getElementById("takeInput");
-    takeInput.value = takeMatches;
-}
-
-// Call the function to populate input fields on page load
-populateInputFields();
